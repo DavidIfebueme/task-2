@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token #this is my first time using access_tokens walai
 from app import db
 from app.models import User, Organisation, UserOrganisation
-import uuid
+import uuid #for random org id
 
-auth = Blueprint('auth', __name__)
+auth = Blueprint('auth', __name__) #auth/
 
 @auth.route('/register', methods=['POST'])
 def register():
@@ -18,8 +18,22 @@ def register():
     password = data.get('password')
     phone = data.get('phone')
 
-    if not all([user_id, first_name, last_name, email, password]):
-        return jsonify({"errors": [{"field": "input", "message": "All fields are required"}]}), 422
+    errors = []
+    # this is very ugly code but it is what it is
+    if not user_id:
+        errors.append({"field": "userId", "message": "User ID is required"})
+    if not first_name:
+        errors.append({"field": "firstName", "message": "First name is required"})
+    if not last_name:
+        errors.append({"field": "lastName", "message": "Last name is required"})
+    if not email:
+        errors.append({"field": "email", "message": "Email is required"})
+    if not password:
+        errors.append({"field": "password", "message": "Password is required"})
+    
+    # i am honestly embarrassed by the rubbish i just wrote
+    if errors:
+        return jsonify({"errors": errors}), 422
 
     if User.query.filter_by(email=email).first():
         return jsonify({"errors": [{"field": "email", "message": "Email already in use"}]}), 422
@@ -40,7 +54,7 @@ def register():
     db.session.add(user_org)
     db.session.commit()
 
-    access_token = create_access_token(identity=user_id)
+    access_token = create_access_token(identity=user_id) #question: how long do access tokens even last
     return jsonify({"status": "success", "message": "Registration successful", "data": {"accessToken": access_token, "user": {"userId": user_id, "firstName": first_name, "lastName": last_name, "email": email, "phone": phone}}}), 201
 
 @auth.route('/login', methods=['POST'])
@@ -50,7 +64,7 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first() #must be unique email. come to think of it i wonder if there should be regex for these fields
 
     if not user or not user.check_password(password):
         return jsonify({"status": "Bad request", "message": "Authentication failed", "statusCode": 401}), 401

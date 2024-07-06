@@ -10,7 +10,7 @@ main = Blueprint('main', __name__)
 @jwt_required()
 def get_user(id):
     current_user_id = get_jwt_identity()
-    user = User.query.filter_by(user_id=id).first()
+    user = User.query.filter_by(user_id=id).first() #unique user id required
 
     if not user or user.user_id != current_user_id:
         return jsonify({"status": "error", "message": "User not found or unauthorized"}), 404
