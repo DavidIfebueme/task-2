@@ -17,8 +17,9 @@ class TestingConfig(Config):
 class DevelopmentConfig(Config):
     DEBUG = True
 
-class ProductionConfig(Config): #probably not gonna need this for this projet but still stay here cause ill need to reference this repo in the future
+class ProductionConfig(Config): #probably not gonna need this for this projet but still stay here cause ill need to reference this repo in the future. turns out i needed it
     DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
 
 config = {
     'development': DevelopmentConfig,

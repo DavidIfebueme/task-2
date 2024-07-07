@@ -8,7 +8,7 @@ db = SQLAlchemy()  # db
 migrate = Migrate()  # flask db
 jwt = JWTManager()  # access_token
 
-def create_app(config_name='default'):
+def create_app(config_name='production'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
