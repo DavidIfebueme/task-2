@@ -11,7 +11,6 @@ auth = Blueprint('auth', __name__) #auth/
 def register():
     data = request.get_json()
 
-    user_id = data.get('userId')
     first_name = data.get('firstName')
     last_name = data.get('lastName')
     email = data.get('email')
@@ -20,8 +19,6 @@ def register():
 
     errors = []
     # this is very ugly code but it is what it is
-    if not user_id:
-        errors.append({"field": "userId", "message": "User ID is required"})
     if not first_name:
         errors.append({"field": "firstName", "message": "First name is required"})
     if not last_name:
@@ -37,6 +34,8 @@ def register():
 
     if User.query.filter_by(email=email).first():
         return jsonify({"errors": [{"field": "email", "message": "Email already in use"}]}), 422
+
+    user_id = str(uuid.uuid4()) #im such a fool walai
 
     #hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
     new_user = User(user_id=user_id, first_name=first_name, last_name=last_name, email=email, password=password, phone=phone)
