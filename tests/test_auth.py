@@ -13,7 +13,7 @@ from app.models import User, Organisation, UserOrganisation
 class AuthTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.app = create_app(config_name="testing")
+        self.app = create_app(config_name="testing") # walai im just doing rubbish at this point. i know it should be so
         self.client = self.app.test_client
         with self.app.app_context():
             db.create_all()
@@ -25,10 +25,9 @@ class AuthTestCase(unittest.TestCase):
 
     def test_register_user_successfully(self):
         user_data = {
-            "userId": "test_user_21",
             "firstName": "mentor",
             "lastName": "shully",
-            "email": "mentorshully21@example.com",
+            "email": "mentorshully31@example.com",
             "password": "password123",
             "phone": "1234567890"
         }
@@ -40,20 +39,19 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(result['status'], 'success')
         self.assertEqual(result['data']['user']['firstName'], 'mentor')
         self.assertIn('accessToken', result['data'])
-        self.assertEqual(result['data']['user']['email'], 'mentorshully21@example.com')
+        self.assertEqual(result['data']['user']['email'], 'mentorshully31@example.com')
 
     def test_login_user_successfully(self):
         user_data = {
-            "userId": "test_user_22",
             "firstName": "mentor",
             "lastName": "shully",
-            "email": "mentorshully22@example.com",
+            "email": "mentorshully32@example.com",
             "password": "password123",
             "phone": "1234"
         }
         self.client().post('/auth/register', data=json.dumps(user_data), content_type='application/json')
         login_data = {
-            "email": "mentorshully22@example.com",
+            "email": "mentorshully32@example.com",
             "password": "password123"
         }
         response = self.client().post('/auth/login', data=json.dumps(login_data), content_type='application/json')
@@ -66,10 +64,9 @@ class AuthTestCase(unittest.TestCase):
 
     def test_fail_if_required_fields_missing(self):
         user_data = {
-            "userId": "test_user_23",
             "firstName": "mentor",
             "lastName": "",
-            "email": "mentorshully23@example.com",
+            "email": "mentorshully33@example.com",
             "password": "password123",
             "phone": "1234"
         }
@@ -82,18 +79,16 @@ class AuthTestCase(unittest.TestCase):
 
     def test_fail_if_duplicate_email_or_userid(self):
         user_data_1 = {
-            "userId": "test_user_24",
             "firstName": "mentor",
             "lastName": "shully",
-            "email": "mentorshully24@example.com",
+            "email": "mentorshully34@example.com",
             "password": "password123",
             "phone": "23679744294"
         }
         user_data_2 = {
-            "userId": "test_user_25",
             "firstName": "myback",
             "lastName": "ispainingme",
-            "email": "mentorshully24@example.com",  # Duplicate mentorshully email
+            "email": "mentorshully34@example.com",  # Duplicate mentorshully email
             "password": "password123",
             "phone": "27362967233"
         }
