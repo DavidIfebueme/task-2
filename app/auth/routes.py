@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response, json
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token #this is my first time using access_tokens walai
 from app import db
@@ -54,7 +54,23 @@ def register():
     db.session.commit()
 
     access_token = create_access_token(identity=user_id) #question: how long do access tokens even last
-    return jsonify({"status": "success", "message": "Registration successful", "data": {"accessToken": access_token, "user": {"userId": user_id, "firstName": first_name, "lastName": last_name, "email": email, "phone": phone}}}), 201
+     response_data = {
+        "status": "success",
+        "message": "Registration successful",
+        "data": {
+            "accessToken": access_token,
+            "user": {
+                "userId": user_id,
+                "firstName": first_name,
+                "lastName": last_name,
+                "email": email,
+                "phone": phone
+            }
+        }
+    }
+    
+    response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+    return response, 201
 
 @auth.route('/login', methods=['POST'])
 def login():
