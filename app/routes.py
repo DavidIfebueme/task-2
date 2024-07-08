@@ -153,7 +153,7 @@ def add_user_to_organisation(orgId):
     db.session.add(new_user_org)
     db.session.commit()
     
-     response_data = {
+    response_data = {
         "status": "success",
         "message": "User added to organisation successfully"
     }
