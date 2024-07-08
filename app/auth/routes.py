@@ -54,7 +54,7 @@ def register():
     db.session.commit()
 
     access_token = create_access_token(identity=user_id) #question: how long do access tokens even last
-     response_data = {
+    response_data = {
         "status": "success",
         "message": "Registration successful",
         "data": {
@@ -68,7 +68,7 @@ def register():
             }
         }
     }
-    
+
     response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
     return response, 201
 
