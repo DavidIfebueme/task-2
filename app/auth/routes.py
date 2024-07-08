@@ -85,4 +85,19 @@ def login():
         return jsonify({"status": "Bad request", "message": "Authentication failed", "statusCode": 401}), 401
 
     access_token = create_access_token(identity=user.user_id)
-    return jsonify({"status": "success", "message": "Login successful", "data": {"accessToken": access_token, "user": {"userId": user.user_id, "firstName": user.first_name, "lastName": user.last_name, "email": user.email, "phone": user.phone}}}), 200
+    response_data = {
+        "status": "success",
+        "message": "Login successful",
+        "data": {
+            "accessToken": access_token,
+            "user": {
+                "userId": user.user_id,
+                "firstName": user.first_name,
+                "lastName": user.last_name,
+                "email": user.email,
+                "phone": user.phone
+            }
+        }
+    }
+    response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+    return response, 200

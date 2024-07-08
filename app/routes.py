@@ -1,8 +1,10 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response, json
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .models import User, Organisation, UserOrganisation
 import uuid
 from .models import db
+
+# more code cos hng bot doesnt like jsonify lol
 
 main = Blueprint('main', __name__)
 
@@ -13,9 +15,24 @@ def get_user(id):
     user = User.query.filter_by(user_id=id).first() #unique user id required
 
     if not user or user.user_id != current_user_id:
-        return jsonify({"status": "error", "message": "User not found or unauthorized"}), 404
+        # all this plenty code. wetin jsonify go do in one line
+        response_data = {"status": "error", "message": "User not found or unauthorized"}
+        response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+        return response, 404
 
-    return jsonify({"status": "success", "message": "User retrieved", "data": {"userId": user.user_id, "firstName": user.first_name, "lastName": user.last_name, "email": user.email, "phone": user.phone}}), 200
+    response_data = {
+        "status": "success",
+        "message": "User retrieved",
+        "data": {
+            "userId": user.user_id,
+            "firstName": user.first_name,
+            "lastName": user.last_name,
+            "email": user.email,
+            "phone": user.phone
+        }
+    }
+    response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+    return response, 200
 
 
 @main.route('/api/organisations', methods=['GET'])
@@ -29,7 +46,15 @@ def get_organisations():
         org = Organisation.query.filter_by(org_id=user_org.org_id).first()
         organisations.append({"orgId": org.org_id, "name": org.name, "description": org.description})
     
-    return jsonify({"status": "success", "message": "Organisations retrieved", "data": {"organisations": organisations}}), 200
+    response_data = {
+        "status": "success",
+        "message": "Organisations retrieved",
+        "data": {
+            "organisations": organisations
+        }
+    }
+    response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+    return response, 200
 
 @main.route('/api/organisations/<string:orgId>', methods=['GET'])
 @jwt_required()
@@ -38,10 +63,23 @@ def get_organisation(orgId):
     user_org = UserOrganisation.query.filter_by(user_id=current_user_id, org_id=orgId).first()
     
     if not user_org:
-        return jsonify({"status": "error", "message": "Organisation not found or unauthorized"}), 404
+        response_data = {"status": "error", "message": "Organisation not found or unauthorized"}
+        response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+        return response, 404
     
     org = Organisation.query.filter_by(org_id=orgId).first()
-    return jsonify({"status": "success", "message": "Organisation retrieved", "data": {"orgId": org.org_id, "name": org.name, "description": org.description}}), 200
+    response_data = {
+        "status": "success",
+        "message": "Organisation retrieved",
+        "data": {
+            "orgId": org.org_id,
+            "name": org.name,
+            "description": org.description
+        }
+    }
+    response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+    return response, 200
+
 
 @main.route('/api/organisations', methods=['POST'])
 @jwt_required()
@@ -53,7 +91,11 @@ def create_organisation():
     description = data.get('description')
     
     if not name:
-        return jsonify({"errors": [{"field": "name", "message": "Name is required"}]}), 422
+        response_data = {
+            "errors": [{"field": "name", "message": "Name is required"}]
+        }
+        response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+        return response, 422
     
     org_id = str(uuid.uuid4())
     new_org = Organisation(org_id=org_id, name=name, description=description)
@@ -64,7 +106,18 @@ def create_organisation():
     db.session.add(user_org)
     db.session.commit()
     
-    return jsonify({"status": "success", "message": "Organisation created successfully", "data": {"orgId": org_id, "name": name, "description": description}}), 201
+    response_data = {
+        "status": "success",
+        "message": "Organisation created successfully",
+        "data": {
+            "orgId": org_id,
+            "name": name,
+            "description": description
+        }
+    }
+    response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+    return response, 201
+
 
 @main.route('/api/organisations/<string:orgId>/users', methods=['POST'])
 @jwt_required()
@@ -74,18 +127,35 @@ def add_user_to_organisation(orgId):
     
     user_id = data.get('userId')
     if not user_id:
-        return jsonify({"errors": [{"field": "userId", "message": "User ID is required"}]}), 422
+        response_data = {
+            "errors": [{"field": "userId", "message": "User ID is required"}]
+        }
+        response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+        return response, 422
     
     user = User.query.filter_by(user_id=user_id).first()
     if not user:
-        return jsonify({"errors": [{"field": "userId", "message": "User not found"}]}), 404
+        response_data = {
+            "errors": [{"field": "userId", "message": "User not found"}]
+        }
+        response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+        return response, 404
     
     user_org = UserOrganisation.query.filter_by(user_id=user_id, org_id=orgId).first()
     if user_org:
-        return jsonify({"errors": [{"field": "userId", "message": "User already in organisation"}]}), 422
+        response_data = {
+            "errors": [{"field": "userId", "message": "User already in organisation"}]
+        }
+        response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+        return response, 422
     
     new_user_org = UserOrganisation(user_id=user_id, org_id=orgId)
     db.session.add(new_user_org)
     db.session.commit()
     
-    return jsonify({"status": "success", "message": "User added to organisation successfully"}), 200
+     response_data = {
+        "status": "success",
+        "message": "User added to organisation successfully"
+    }
+    response = Response(json.dumps(response_data, sort_keys=False), mimetype='application/json')
+    return response, 200
