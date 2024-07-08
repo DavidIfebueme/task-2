@@ -11,6 +11,7 @@ jwt = JWTManager()  # access_token
 def create_app(config_name='production'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+    app.config['JSON_SORT_KEYS'] = False
 
     db.init_app(app)
     migrate.init_app(app, db)

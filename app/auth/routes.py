@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token #this is my first time using access_tokens walai
 from app import db
 from app.models import User, Organisation, UserOrganisation
-import uuid #for random org id
+import uuid #for random user and  org id
 
 auth = Blueprint('auth', __name__) #auth/
 
